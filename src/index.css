@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Light Mode Variables (Default, mimicking a clean SaaS) */
+        --color-background: #f8fafc;
+        --color-surface: #ffffff;
+        --color-border: #e2e8f0;
+        --color-textMain: #0f172a;
+        --color-textMuted: #64748b;
+        --color-primary: #6366f1;
+        --color-primaryHover: #4f46e5;
+    }
+
+    /* Dark Mode Variables (The exact original design) */
+    .dark {
+        --color-background: #0f121b;
+        --color-surface: #171a24;
+        --color-border: #2a2d3d;
+        --color-textMain: #f8fafc;
+        --color-textMuted: #94a3b8;
+        --color-primary: #6366f1;
+        --color-primaryHover: #4f46e5;
+    }
+
+    body {
+        background-color: var(--color-background);
+        color: var(--color-textMain);
+    }
+}
+
+@layer utilities {
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: theme('colors.surface');
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: theme('colors.border');
+        border-radius: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+}
