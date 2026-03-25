@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
+
     useEffect(() => {
         // Get initial session
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -42,8 +43,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, [])
 
     const signOut = async () => {
+        if (user) {
+            await supabase.from('user_sessions').delete().eq('user_id', user.id)
+        }
+        localStorage.removeItem('synix_session_token')
         await supabase.auth.signOut()
     }
+
+    useEffect(() => {
+        if (!user) return
+
+        let isMounted = true
+
+        const checkSession = async () => {
+            // Always read from localStorage to avoid stale React state from before login
+            const currentToken = localStorage.getItem('synix_session_token')
+            if (!currentToken) return
+
+            const { data, error } = await supabase
+                .from('user_sessions')
+                .select('session_token')
+                .eq('user_id', user.id)
+                .single()
+            
+            // If no record exists, upsert to start tracking
+            if (error && error.code === 'PGRST116') {
+                await supabase.from('user_sessions').upsert({
+                    user_id: user.id,
+                    session_token: currentToken
+                })
+                return
+            }
+
+            // If a different token exists in DB, it means someone logged in elsewhere
+            if (data && data.session_token !== currentToken) {
+                if (isMounted) {
+                    await signOut()
+                    alert("Tu sesión ha sido cerrada automáticamente porque se inició sesión desde otro dispositivo.")
+                }
+            }
+        }
+
+        const onFocus = () => checkSession()
+        window.addEventListener('focus', onFocus)
+        const interval = setInterval(checkSession, 30000)
+        
+        checkSession()
+
+        return () => {
+            isMounted = false
+            window.removeEventListener('focus', onFocus)
+            clearInterval(interval)
+        }
+    }, [user])
 
     const value = {
         session,

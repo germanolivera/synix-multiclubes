@@ -6,7 +6,7 @@ import { useBranch } from '../contexts/BranchContext'
 
 export function useEspaciosData() {
     const { session } = useAuth()
-    const { activeClub } = useBranch()
+    const { activeClub, loadingBranch } = useBranch()
     const [espacios, setEspacios] = useState<Espacio[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -43,12 +43,14 @@ export function useEspaciosData() {
 
         if (session && activeClub && isMounted) {
             fetchEspacios()
+        } else if (!loadingBranch && (!session || !activeClub) && isMounted) {
+            setLoading(false)
         }
 
         return () => {
             isMounted = false
         }
-    }, [session, activeClub])
+    }, [session, activeClub, loadingBranch])
 
     return { espacios, loading, error, refreshEspacios: fetchEspacios }
 }

@@ -15,6 +15,7 @@ export interface Espacio {
     club_deportes?: { nombre: string }; // For joined queries
     estado: string;
     caracteristicas: Record<string, any>;
+    es_multideporte: boolean;
 }
 
 export interface Sesion {
@@ -22,6 +23,7 @@ export interface Sesion {
     club_id: string;
     espacio_id: string;
     actividad_id: string;
+    deporte_id?: string | null;
     cliente_id?: string | null;
     inicio: string;
     fin: string;
@@ -29,6 +31,9 @@ export interface Sesion {
     plazas_disponibles: number;
     precio: number | null;
     estado_pago?: string;
+    clientes_globales?: { nombre: string, apellido: string, telefono: string | null } | null;
+    created_by?: string | null;
+    anotaciones?: string | null;
 }
 
 export interface SesionItem {
@@ -58,6 +63,7 @@ export interface ClienteGlobal {
     email: string | null;
     telefono: string | null;
     dni: string | null;
+    tipo: 'jugador' | 'profesor';
     niveles_por_deporte: Record<string, string>; // { deporte_id: "nivel" }
     activo: boolean;
     created_at?: string;

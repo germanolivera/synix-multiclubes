@@ -13,7 +13,7 @@ export interface CategoriaArticulo {
 }
 
 export function useCategoriasData() {
-    const { activeClub } = useBranch()
+    const { activeClub, loadingBranch } = useBranch()
     const { session } = useAuth()
     const [categorias, setCategorias] = useState<CategoriaArticulo[]>([])
     const [loading, setLoading] = useState(true)
@@ -21,8 +21,10 @@ export function useCategoriasData() {
 
     const fetchCategorias = useCallback(async () => {
         if (!session || !activeClub) {
-            setCategorias([])
-            setLoading(false)
+            if (!loadingBranch) {
+                setCategorias([])
+                setLoading(false)
+            }
             return
         }
 
@@ -43,7 +45,7 @@ export function useCategoriasData() {
         } finally {
             setLoading(false)
         }
-    }, [activeClub, session])
+    }, [activeClub, session, loadingBranch])
 
     useEffect(() => {
         fetchCategorias()

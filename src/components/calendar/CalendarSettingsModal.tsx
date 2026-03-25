@@ -60,7 +60,7 @@ export default function CalendarSettingsModal({
                         <select
                             value={startHour}
                             onChange={(e) => setStartHour(Number(e.target.value))}
-                            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary"
+                            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-textMain focus:outline-none focus:border-primary"
                         >
                             {hours.map(h => (
                                 <option key={h} value={h}>
@@ -76,7 +76,7 @@ export default function CalendarSettingsModal({
                         <select
                             value={endHour}
                             onChange={(e) => setEndHour(Number(e.target.value))}
-                            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary"
+                            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-textMain focus:outline-none focus:border-primary"
                         >
                             {hours.map(h => (
                                 <option key={h} value={h} disabled={h <= startHour}>
@@ -93,7 +93,7 @@ export default function CalendarSettingsModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-textMuted hover:text-white transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-textMuted hover:text-textMain transition-colors"
                     >
                         Cancelar
                     </button>

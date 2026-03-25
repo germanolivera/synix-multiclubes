@@ -10,6 +10,7 @@ export interface Club {
     localidad?: string | null;
     telefono?: string | null;
     email?: string | null;
+    estado?: 'Operativa' | 'Parcialmente Operativa' | 'Suspendida' | 'Mantenimiento';
 }
 
 interface BranchContextType {

@@ -21,12 +21,21 @@ export default function Login() {
         setLoading(true)
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             })
 
             if (error) throw error
+
+            if (data.user) {
+                const newToken = crypto.randomUUID()
+                localStorage.setItem('synix_session_token', newToken)
+                await supabase.from('user_sessions').upsert({
+                    user_id: data.user.id,
+                    session_token: newToken
+                })
+            }
 
         } catch (err: any) {
             setError(err.message || 'Error al iniciar sesión')

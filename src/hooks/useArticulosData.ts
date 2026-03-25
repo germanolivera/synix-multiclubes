@@ -19,7 +19,7 @@ export interface Articulo {
 }
 
 export function useArticulosData() {
-    const { activeClub } = useBranch()
+    const { activeClub, loadingBranch } = useBranch()
     const { session } = useAuth()
     const [articulos, setArticulos] = useState<Articulo[]>([])
     const [loading, setLoading] = useState(true)
@@ -27,8 +27,10 @@ export function useArticulosData() {
 
     const fetchArticulos = useCallback(async () => {
         if (!session || !activeClub) {
-            setArticulos([])
-            setLoading(false)
+            if (!loadingBranch) {
+                setArticulos([])
+                setLoading(false)
+            }
             return
         }
 
@@ -54,7 +56,7 @@ export function useArticulosData() {
         } finally {
             setLoading(false)
         }
-    }, [activeClub, session])
+    }, [activeClub, session, loadingBranch])
 
     useEffect(() => {
         fetchArticulos()

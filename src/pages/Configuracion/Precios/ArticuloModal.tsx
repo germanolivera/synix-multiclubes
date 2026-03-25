@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Trash2 } from 'lucide-react'
 import Modal from '../../../components/ui/Modal'
 import { supabase } from '../../../lib/supabase'
 import { useBranch } from '../../../contexts/BranchContext'
@@ -46,6 +47,33 @@ export default function ArticuloModal({ isOpen, onClose, onSuccess, articuloToEd
         }
         setError(null)
     }, [articuloToEdit, isOpen])
+
+    const handleDelete = async () => {
+        if (!articuloToEdit) return
+        if (!window.confirm(`¿Seguro que deseas eliminar el artículo "${articuloToEdit.nombre}"? Esta acción no se puede deshacer.`)) return
+
+        try {
+            setLoading(true)
+            setError(null)
+            const { error: deleteError } = await supabase
+                .from('articulos')
+                .delete()
+                .eq('id', articuloToEdit.id)
+            if (deleteError) throw deleteError
+            onSuccess()
+            onClose()
+        } catch (err: any) {
+            console.error(err)
+            const msg = err.message || err.details || ''
+            if (msg.includes('foreign key constraint')) {
+                setError('No se puede eliminar porque ya tiene ventas o reservas asociadas. Recomendado: Desmarca la opción de "Artículo Activo" para ocultarlo.')
+            } else {
+                setError(err.message || 'Error al eliminar el artículo')
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -209,25 +237,40 @@ export default function ArticuloModal({ isOpen, onClose, onSuccess, articuloToEd
                     </label>
                 </div>
 
-                <div className="pt-4 border-t border-border flex justify-end gap-3 mt-4">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-textMain bg-surface hover:bg-white/5 border border-border rounded-lg transition-colors"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={loading || (!categoriaId && !articuloToEdit)}
-                        className="px-4 py-2 flex items-center justify-center min-w-[120px] text-sm font-medium text-white bg-primary hover:bg-primaryHover disabled:opacity-50 rounded-lg transition-colors shadow-sm"
-                    >
-                        {loading ? (
-                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        ) : (
-                            'Guardar'
+                <div className="pt-4 border-t border-border flex justify-between items-center mt-4">
+                    <div>
+                        {articuloToEdit && (
+                            <button
+                                type="button"
+                                onClick={handleDelete}
+                                disabled={loading}
+                                className="p-2 text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex items-center justify-center opacity-80 hover:opacity-100"
+                                title="Eliminar artículo"
+                            >
+                                <Trash2 size={20} />
+                            </button>
                         )}
-                    </button>
+                    </div>
+                    <div className="flex justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-4 py-2 text-sm font-medium text-textMain bg-surface hover:bg-white/5 border border-border rounded-lg transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading || (!categoriaId && !articuloToEdit)}
+                            className="px-4 py-2 flex items-center justify-center min-w-[120px] text-sm font-medium text-white bg-primary hover:bg-primaryHover disabled:opacity-50 rounded-lg transition-colors shadow-sm"
+                        >
+                            {loading ? (
+                                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            ) : (
+                                'Guardar'
+                            )}
+                        </button>
+                    </div>
                 </div>
             </form>
         </Modal>

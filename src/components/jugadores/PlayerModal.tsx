@@ -8,7 +8,7 @@ import { Plus, X, Trophy } from 'lucide-react'
 interface PlayerModalProps {
     isOpen: boolean
     onClose: () => void
-    onSuccess: () => void
+    onSuccess: (player?: any) => void
     playerToEdit?: any | null
 }
 
@@ -26,6 +26,7 @@ export default function PlayerModal({ isOpen, onClose, onSuccess, playerToEdit }
         telefono: '',
         dni: ''
     })
+    const [tipo, setTipo] = useState<'jugador' | 'profesor'>('jugador')
 
     // Dynamic Levels state: { [deporte_id]: string }
     const [nivelesPorDeporte, setNivelesPorDeporte] = useState<Record<string, string>>({})
@@ -46,6 +47,7 @@ export default function PlayerModal({ isOpen, onClose, onSuccess, playerToEdit }
                 telefono: playerToEdit.telefono || '',
                 dni: playerToEdit.dni || ''
             })
+            setTipo(playerToEdit.tipo || 'jugador')
 
             let parsedLevels = {}
             if (playerToEdit.niveles_por_deporte) {
@@ -65,6 +67,7 @@ export default function PlayerModal({ isOpen, onClose, onSuccess, playerToEdit }
                 telefono: '',
                 dni: ''
             })
+            setTipo('jugador')
             setNivelesPorDeporte({})
         }
         setError(null)
@@ -102,21 +105,30 @@ export default function PlayerModal({ isOpen, onClose, onSuccess, playerToEdit }
                 email: email.trim() || null,
                 telefono: telefono.trim() || null,
                 dni: dni.trim() || null,
+                tipo,
                 niveles_por_deporte: finalNiveles,
                 activo: true
             }
 
+            let savedPlayer = null;
+
             if (playerToEdit) {
-                const { error: updateError } = await supabase
+                const { data, error: updateError } = await supabase
                     .from('clientes_globales')
                     .update(payload)
                     .eq('id', playerToEdit.id)
+                    .select()
+                    .single()
                 if (updateError) throw updateError
+                savedPlayer = data
             } else {
-                const { error: insertError } = await supabase
+                const { data, error: insertError } = await supabase
                     .from('clientes_globales')
                     .insert([payload])
+                    .select()
+                    .single()
                 if (insertError) throw insertError
+                savedPlayer = data
             }
 
             // Success
@@ -124,7 +136,7 @@ export default function PlayerModal({ isOpen, onClose, onSuccess, playerToEdit }
             setNivelesPorDeporte({})
             setSelectedDeporteId('')
             setSelectedLevel('')
-            onSuccess()
+            onSuccess(savedPlayer)
             onClose()
 
         } catch (err: any) {
@@ -135,14 +147,71 @@ export default function PlayerModal({ isOpen, onClose, onSuccess, playerToEdit }
         }
     }
 
+    const handleDelete = async () => {
+        if (!playerToEdit) return
+
+        if (!window.confirm(`¿Estás seguro que deseas eliminar a ${playerToEdit.nombre} ${playerToEdit.apellido}?`)) {
+            return
+        }
+
+        try {
+            setLoading(true)
+            setError(null)
+
+            const { error: deleteError } = await supabase
+                .from('clientes_globales')
+                .delete()
+                .eq('id', playerToEdit.id)
+
+            if (deleteError) throw deleteError
+
+            onSuccess()
+            onClose()
+        } catch (err: any) {
+            console.error('Error al eliminar jugador:', err)
+            setError(err.message || 'Ocurrió un error al eliminar el jugador.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={playerToEdit ? "Editar Jugador" : "Nuevo Jugador"}>
+        <Modal isOpen={isOpen} onClose={onClose} title={playerToEdit ? `Editar ${tipo === 'profesor' ? 'Profesor' : 'Jugador'}` : `Nuevo ${tipo === 'profesor' ? 'Profesor' : 'Jugador'}`}>
             <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                     <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm p-3 rounded-md">
                         {error}
                     </div>
                 )}
+
+                {/* Tipo selector */}
+                <div className="space-y-1">
+                    <label className="block text-sm font-medium text-textMain">Tipo de Persona</label>
+                    <div className="flex bg-background border border-border rounded-lg p-0.5">
+                        <button
+                            type="button"
+                            onClick={() => setTipo('jugador')}
+                            className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                                tipo === 'jugador'
+                                    ? 'bg-primary text-white shadow-sm'
+                                    : 'text-textMuted hover:text-textMain'
+                            }`}
+                        >
+                            Jugador
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setTipo('profesor')}
+                            className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                                tipo === 'profesor'
+                                    ? 'bg-emerald-600 text-white shadow-sm'
+                                    : 'text-textMuted hover:text-textMain'
+                            }`}
+                        >
+                            Profesor
+                        </button>
+                    </div>
+                </div>
 
                 {/* Row: Name and Last Name */}
                 <div className="flex gap-4">
@@ -222,7 +291,11 @@ export default function PlayerModal({ isOpen, onClose, onSuccess, playerToEdit }
                 {/* Sports and Levels Linkage */}
                 <div className="space-y-2 border-t border-border pt-4">
                     <label className="block text-sm font-medium text-textMain">Deportes y Niveles</label>
-                    <p className="text-xs text-textMuted">Asigna los deportes que practica el jugador y su nivel en cada uno.</p>
+                    <p className="text-xs text-textMuted">
+                        {tipo === 'profesor'
+                            ? 'Asigna los deportes que dicta el profesor y su nivel.'
+                            : 'Asigna los deportes que practica el jugador y su nivel en cada uno.'}
+                    </p>
 
                     {/* Existing Assignments */}
                     <div className="space-y-2 mb-2">
@@ -297,25 +370,39 @@ export default function PlayerModal({ isOpen, onClose, onSuccess, playerToEdit }
                 </div>
 
                 {/* Actions */}
-                <div className="pt-4 flex justify-end gap-3 mt-4">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-textMain bg-surface hover:bg-white/5 border border-border rounded-lg transition-colors"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="px-4 py-2 flex items-center justify-center min-w-[120px] text-sm font-medium text-white bg-primary hover:bg-primaryHover disabled:opacity-50 rounded-lg transition-colors shadow-sm"
-                    >
-                        {loading ? (
-                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        ) : (
-                            'Guardar Jugador'
+                <div className="pt-4 flex justify-between items-center mt-4 border-t border-border">
+                    <div>
+                        {playerToEdit && (
+                            <button
+                                type="button"
+                                onClick={handleDelete}
+                                disabled={loading}
+                                className="px-4 py-2 mt-4 text-sm font-medium text-red-500 bg-transparent hover:bg-red-500/10 border border-red-500/50 hover:border-red-500 rounded-lg transition-colors"
+                            >
+                                Eliminar {tipo === 'profesor' ? 'Profesor' : 'Jugador'}
+                            </button>
                         )}
-                    </button>
+                    </div>
+                    <div className="flex gap-3 mt-4">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-4 py-2 text-sm font-medium text-textMain bg-surface hover:bg-white/5 border border-border rounded-lg transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-4 py-2 flex items-center justify-center min-w-[120px] text-sm font-medium text-white bg-primary hover:bg-primaryHover disabled:opacity-50 rounded-lg transition-colors shadow-sm"
+                        >
+                            {loading ? (
+                                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            ) : (
+                                'Guardar'
+                            )}
+                        </button>
+                    </div>
                 </div>
             </form>
         </Modal>

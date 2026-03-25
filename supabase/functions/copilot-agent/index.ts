@@ -69,7 +69,7 @@ REGLAS:
     const genAI = new GoogleGenerativeAI(apiKey);
     // Trying gemini-2.5-flash as the newest, or gemini-1.5-flash-latest 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-1.5-flash",
       systemInstruction: systemPrompt
     });
 

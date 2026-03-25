@@ -119,7 +119,9 @@ export default function Sedes() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-green-500/10 text-green-500 border border-green-500/20">Operativa</span>
+                                            <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full border ${getStatusBadgeColor(sede.estado as any)}`}>
+                                                {sede.estado || 'Operativa'}
+                                            </span>
                                         </td>
                                     </tr>
                                 ))
@@ -139,4 +141,20 @@ export default function Sedes() {
             )}
         </div>
     )
+}
+
+function getStatusBadgeColor(estado: 'Operativa' | 'Parcialmente Operativa' | 'Suspendida' | 'Mantenimiento') {
+    switch (estado) {
+        case 'Operativa':
+            return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
+        case 'Parcialmente Operativa':
+            return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+        case 'Suspendida':
+            return 'bg-red-500/10 text-red-600 border-red-500/20';
+        case 'Mantenimiento':
+            return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+        default:
+            // Default to operative if undefined (legacy records)
+            return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
+    }
 }

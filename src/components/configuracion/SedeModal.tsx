@@ -18,6 +18,7 @@ export default function SedeModal({ isOpen, onClose, onSuccess, sedeToEdit }: Se
     const [localidad, setLocalidad] = useState('')
     const [telefono, setTelefono] = useState('')
     const [email, setEmail] = useState('')
+    const [estado, setEstado] = useState<'Operativa' | 'Parcialmente Operativa' | 'Suspendida' | 'Mantenimiento'>('Operativa')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -28,12 +29,14 @@ export default function SedeModal({ isOpen, onClose, onSuccess, sedeToEdit }: Se
             setLocalidad(sedeToEdit.localidad || '')
             setTelefono(sedeToEdit.telefono || '')
             setEmail(sedeToEdit.email || '')
+            setEstado(sedeToEdit.estado || 'Operativa')
         } else {
             setNombre('')
             setDomicilio('')
             setLocalidad('')
             setTelefono('')
             setEmail('')
+            setEstado('Operativa')
         }
     }, [sedeToEdit, isOpen])
 
@@ -60,7 +63,8 @@ export default function SedeModal({ isOpen, onClose, onSuccess, sedeToEdit }: Se
                         domicilio: domicilio.trim() || null,
                         localidad: localidad.trim() || null,
                         telefono: telefono.trim() || null,
-                        email: email.trim() || null
+                        email: email.trim() || null,
+                        estado
                     })
                     .eq('id', sedeToEdit.id)
 
@@ -75,7 +79,8 @@ export default function SedeModal({ isOpen, onClose, onSuccess, sedeToEdit }: Se
                         domicilio: domicilio.trim() || null,
                         localidad: localidad.trim() || null,
                         telefono: telefono.trim() || null,
-                        email: email.trim() || null
+                        email: email.trim() || null,
+                        estado
                     }])
 
                 if (insertError) throw insertError
@@ -116,6 +121,23 @@ export default function SedeModal({ isOpen, onClose, onSuccess, sedeToEdit }: Se
                         className="w-full bg-surface border border-border text-textMain text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
                         placeholder="ej. Sede Belgrano"
                     />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-textMain mb-1">
+                        Estado <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                        required
+                        value={estado}
+                        onChange={(e) => setEstado(e.target.value as any)}
+                        className="w-full bg-surface border border-border text-textMain text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors cursor-pointer appearance-none"
+                    >
+                        <option value="Operativa">Operativa</option>
+                        <option value="Parcialmente Operativa">Parcialmente Operativa</option>
+                        <option value="Suspendida">Suspendida</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                    </select>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

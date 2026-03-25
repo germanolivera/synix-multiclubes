@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { Sesion, SesionItem } from '../types/database.types'
 import { useAuth } from '../contexts/AuthContext'
@@ -21,9 +21,9 @@ export interface SessionWithItems extends Sesion {
     items?: SesionItem[];
 }
 
-export function useCajaData(selectedDate: Date) {
+export function useCajaData(startDate: Date, endDate: Date) {
     const { session } = useAuth()
-    const { activeClub } = useBranch()
+    const { activeClub, loadingBranch } = useBranch()
     const [sesiones, setSesiones] = useState<SessionWithItems[]>([])
     const [summary, setSummary] = useState<CajaSummary>({
         totalRecaudado: 0,
@@ -34,23 +34,32 @@ export function useCajaData(selectedDate: Date) {
         turnosPendientes: 0,
         turnosSenados: 0
     })
+    const [empleados, setEmpleados] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+    const refreshCaja = useCallback(() => {
+        setRefreshTrigger(prev => prev + 1)
+    }, [])
 
     useEffect(() => {
         let mounted = true
 
         const fetchCaja = async () => {
-            if (!session || !activeClub) return
+            if (!session || !activeClub) {
+                if (!loadingBranch && mounted) setLoading(false)
+                return
+            }
 
             try {
                 setLoading(true)
                 setError(null)
 
-                // 1. Define day boundaries
-                const startOfDay = new Date(selectedDate)
+                // 1. Define range boundaries
+                const startOfDay = new Date(startDate)
                 startOfDay.setHours(0, 0, 0, 0)
-                const endOfDay = new Date(selectedDate)
+                const endOfDay = new Date(endDate)
                 endOfDay.setHours(23, 59, 59, 999)
 
                 // 2. Query sessions with joined client, space, activity, and items
@@ -72,6 +81,14 @@ export function useCajaData(selectedDate: Date) {
                 if (!mounted) return
 
                 const typedSesiones = (sesionesData || []) as any[]
+
+                // 2.5 Fetch empleados
+                const { data: empleadosData, error: empleadosError } = await supabase
+                    .from('perfiles_empleados')
+                    .select('user_id, nombre, apellido')
+                    .eq('organizacion_id', activeClub.organizacion_id || session?.user?.app_metadata?.organizacion_id)
+                
+                if (empleadosError) console.error("Error fetching empleados:", empleadosError)
 
                 // 3. Compute aggregations
                 let recTotal = 0
@@ -119,6 +136,7 @@ export function useCajaData(selectedDate: Date) {
                         turnosSenados: cSenados,
                         turnosPendientes: cPendientes
                     })
+                    setEmpleados(empleadosData || [])
                 }
 
             } catch (err: any) {
@@ -134,7 +152,7 @@ export function useCajaData(selectedDate: Date) {
         return () => {
             mounted = false
         }
-    }, [session, activeClub, selectedDate])
+    }, [session, activeClub, startDate, endDate, loadingBranch, refreshTrigger])
 
-    return { sesiones, summary, loading, error }
+    return { sesiones, summary, empleados, loading, error, refreshCaja }
 }

@@ -1,0 +1,6 @@
+import{c as i,r as n,j as e}from"./index-DPEqodnp.js";/**
+ * @license lucide-react v0.344.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const a=i("X",[["path",{d:"M18 6 6 18",key:"1bl5f8"}],["path",{d:"m6 6 12 12",key:"d8bk6v"}]]);function c({isOpen:t,onClose:s,title:r,children:o,maxWidth:d="max-w-md"}){return n.useEffect(()=>(t?document.body.style.overflow="hidden":document.body.style.overflow="unset",()=>{document.body.style.overflow="unset"}),[t]),t?e.jsxs("div",{className:"fixed inset-0 z-50 flex items-center justify-center p-4",children:[e.jsx("div",{className:"fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity"}),e.jsxs("div",{className:`relative bg-surface border border-border rounded-xl shadow-2xl w-full ${d} overflow-hidden animate-in fade-in zoom-in-95 duration-200`,children:[e.jsxs("div",{className:"flex items-center justify-between px-6 py-4 border-b border-border bg-surface/50",children:[e.jsx("h3",{className:"text-base font-semibold text-textMain",children:r}),e.jsx("button",{onClick:s,className:"text-textMuted hover:text-white transition-colors rounded-lg p-1 hover:bg-white/5",children:e.jsx(a,{size:20})})]}),e.jsx("div",{className:"p-6",children:o})]})]}):null}export{c as M,a as X};

@@ -36,8 +36,15 @@ export default function DeporteModal({ isOpen, onClose, onSuccess, deporteToEdit
 
     const handleAddNivel = (e: React.MouseEvent | React.KeyboardEvent) => {
         e.preventDefault()
-        if (newNivel.trim() && !niveles.includes(newNivel.trim())) {
-            setNiveles([...niveles, newNivel.trim()])
+        if (newNivel.trim()) {
+            // Split by comma or dot, in case user pastes a list like "C1, C2. C3"
+            const added = newNivel.split(/[,.]/)
+                .map(n => n.trim())
+                .filter(n => n.length > 0 && !niveles.includes(n))
+            
+            if (added.length > 0) {
+                setNiveles([...niveles, ...added])
+            }
             setNewNivel('')
         }
     }

@@ -5,7 +5,6 @@ import {
     Users,
     LogOut,
     Settings,
-    // RotateCcw, // Keep for when the 'Resetear Datos (Test)' button is re-enabled
     Moon,
     Sun,
     ChevronDown,
@@ -28,7 +27,7 @@ export default function Sidebar() {
     const menuItems = [
         { icon: CalendarDays, label: 'Calendario', href: '/' },
         { icon: Wallet, label: 'Caja y Reportes', href: '/caja' }, // Added new menu item
-        { icon: Users, label: 'Jugadores', href: '/jugadores' },
+        { icon: Users, label: 'Personas', href: '/jugadores' },
         { icon: Tag, label: 'Precios', href: '/precios' }
     ]
 
@@ -69,15 +68,15 @@ export default function Sidebar() {
                                         const selected = clubs.find(c => c.id === e.target.value)
                                         if (selected) setActiveClub(selected)
                                     }}
-                                    className="w-full appearance-none bg-surface border border-border text-textMain text-sm rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors font-medium truncate"
+                                    className={`w-full appearance-none border text-sm rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors font-medium truncate ${getSelectorColors(activeClub.estado as any)}`}
                                 >
                                     {clubs.map(club => (
-                                        <option key={club.id} value={club.id}>
+                                        <option key={club.id} value={club.id} className="bg-surface text-textMain">
                                             {club.nombre}
                                         </option>
                                     ))}
                                 </select>
-                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-textMuted pointer-events-none" />
+                                <ChevronDown size={16} className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${getSelectorColors(activeClub.estado as any).split(' ')[2]}`} />
                             </>
                         )}
                     </div>
@@ -112,15 +111,7 @@ export default function Sidebar() {
 
             {/* Bottom Section */}
             <div className="p-4 space-y-2">
-                {/* 
-                <button
-                    title={isCollapsed ? "Resetear Datos" : undefined}
-                    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-500/10 rounded-lg transition-colors`}
-                >
-                    <RotateCcw size={18} />
-                    {!isCollapsed && <span className="truncate">Resetear Datos (Test)</span>}
-                </button>
-                */}
+
 
                 <div className="space-y-1 pt-4 border-t border-border">
                     <button
@@ -187,4 +178,19 @@ export default function Sidebar() {
             </div>
         </aside>
     )
+}
+
+function getSelectorColors(estado?: 'Operativa' | 'Parcialmente Operativa' | 'Suspendida' | 'Mantenimiento') {
+    switch (estado) {
+        case 'Operativa':
+            return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500';
+        case 'Parcialmente Operativa':
+            return 'bg-amber-500/10 border-amber-500/20 text-amber-500';
+        case 'Suspendida':
+            return 'bg-red-500/10 border-red-500/20 text-red-500';
+        case 'Mantenimiento':
+            return 'bg-blue-500/10 border-blue-500/20 text-blue-500';
+        default:
+            return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500';
+    }
 }

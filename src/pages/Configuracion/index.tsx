@@ -1,4 +1,4 @@
-import { LayoutTemplate, ChevronRight, Building2, Tag } from 'lucide-react'
+import { LayoutTemplate, ChevronRight, Building2, Tag, Trash2, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Configuracion() {
@@ -10,6 +10,14 @@ export default function Configuracion() {
             href: '/configuracion/sedes',
             color: 'text-orange-500',
             bg: 'bg-orange-500/10'
+        },
+        {
+            title: 'Personal y Accesos',
+            description: 'Invita y gestiona las cuentas de tus empleados.',
+            icon: Users,
+            href: '/configuracion/personal',
+            color: 'text-blue-500',
+            bg: 'bg-blue-500/10'
         },
         {
             title: 'Estructura del Club',
@@ -26,6 +34,14 @@ export default function Configuracion() {
             href: '/configuracion/precios',
             color: 'text-green-500',
             bg: 'bg-green-500/10'
+        },
+        {
+            title: 'Peligro: Eliminar Cuenta',
+            description: 'Advertencia: Borra tu cuenta y TODOS los datos asociados.',
+            icon: Trash2,
+            href: '/configuracion/eliminar-cuenta',
+            color: 'text-red-500',
+            bg: 'bg-red-500/10 border border-red-500/30'
         }
     ]
 

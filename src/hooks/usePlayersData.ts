@@ -6,7 +6,7 @@ import { useBranch } from '../contexts/BranchContext'
 
 export function usePlayersData() {
     const { session } = useAuth()
-    const { activeClub } = useBranch()
+    const { activeClub, loadingBranch } = useBranch()
     const [players, setPlayers] = useState<ClienteGlobal[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -42,12 +42,14 @@ export function usePlayersData() {
 
         if (session && activeClub && isMounted) {
             fetchPlayers()
+        } else if (!loadingBranch && (!session || !activeClub) && isMounted) {
+            setLoading(false)
         }
 
         return () => {
             isMounted = false
         }
-    }, [session, activeClub])
+    }, [session, activeClub, loadingBranch])
 
     return { players, loading, error, refreshPlayers: fetchPlayers }
 }

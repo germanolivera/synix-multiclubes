@@ -137,7 +137,11 @@ export default function Espacios() {
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center gap-2">
                                                     <Activity size={14} className="text-primary/70" />
-                                                    <span className="text-sm text-textMain">{espacio.club_deportes?.nombre || <span className="text-textMuted italic">Sin Asignar</span>}</span>
+                                                    {espacio.es_multideporte ? (
+                                                        <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">Multideportes</span>
+                                                    ) : (
+                                                        <span className="text-sm text-textMain">{espacio.club_deportes?.nombre || <span className="text-textMuted italic">Sin Asignar</span>}</span>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">

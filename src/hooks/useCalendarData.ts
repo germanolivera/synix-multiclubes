@@ -1,21 +1,29 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { Espacio, Sesion, Actividad } from '../types/database.types'
+import { Espacio, Sesion, Actividad, Deporte } from '../types/database.types'
 import { useAuth } from '../contexts/AuthContext'
 import { useBranch } from '../contexts/BranchContext'
 
 export function useCalendarData(selectedDate: Date) {
     const { session } = useAuth()
-    const { activeClub } = useBranch()
+    const { activeClub, loadingBranch } = useBranch()
     const [espacios, setEspacios] = useState<Espacio[]>([])
     const [sesiones, setSesiones] = useState<Sesion[]>([])
     const [actividades, setActividades] = useState<Actividad[]>([])
+    const [deportes, setDeportes] = useState<Deporte[]>([])
+    const [empleados, setEmpleados] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         // Only fetch if we have an active session and active club
-        if (!session || !activeClub) return
+        if (!session || !activeClub) {
+            // If branch context is done loading and we still don't have an active club, stop our loader
+            if (!loadingBranch) {
+                setLoading(false)
+            }
+            return
+        }
 
         let isMounted = true
 
@@ -46,7 +54,7 @@ export function useCalendarData(selectedDate: Date) {
 
                 const { data: sesionesData, error: sesionesError } = await supabase
                     .from('sesiones')
-                    .select('*')
+                    .select('*, clientes_globales(nombre, apellido, telefono)')
                     .eq('club_id', activeClub.id)
                     .gte('inicio', startOfDay.toISOString())
                     .lte('inicio', endOfDay.toISOString()) // Filter by START date only so overnight sessions are included
@@ -63,10 +71,33 @@ export function useCalendarData(selectedDate: Date) {
 
                 if (actividadesError) throw actividadesError
 
+                // 4. Fetch Deportes (for multideporte spaces)
+                const { data: deportesData, error: deportesError } = await supabase
+                    .from('club_deportes')
+                    .select('*')
+                    .eq('club_id', activeClub.id)
+                    .eq('activo', true)
+                    .order('nombre')
+
+                if (deportesError) throw deportesError
+
+                // 5. Fetch Empleados (for showing who created the session)
+                const { data: empleadosData, error: empleadosError } = await supabase
+                    .from('perfiles_empleados')
+                    .select('user_id, nombre, apellido')
+                    .eq('organizacion_id', activeClub.organizacion_id || session?.user?.app_metadata?.organizacion_id)
+
+                if (empleadosError) {
+                    console.error("Error fetching empleados:", empleadosError)
+                    // Non-fatal error
+                }
+
                 if (isMounted) {
                     setEspacios(espaciosData as Espacio[])
                     setSesiones(sesionesData as Sesion[])
                     setActividades(actividadesData as Actividad[])
+                    setDeportes(deportesData as Deporte[])
+                    setEmpleados(empleadosData || [])
                 }
             } catch (err: any) {
                 if (isMounted) {
@@ -85,7 +116,7 @@ export function useCalendarData(selectedDate: Date) {
         return () => {
             isMounted = false
         }
-    }, [selectedDate, session, activeClub])
+    }, [selectedDate, session, activeClub, loadingBranch])
 
     const refreshSessions = async () => {
         if (!session || !activeClub) return
@@ -96,7 +127,7 @@ export function useCalendarData(selectedDate: Date) {
 
         const { data, error } = await supabase
             .from('sesiones')
-            .select('*')
+            .select('*, clientes_globales(nombre, apellido, telefono)')
             .eq('club_id', activeClub.id)
             .gte('inicio', startOfDay.toISOString())
             .lte('inicio', endOfDay.toISOString()) // Filter by START date only so overnight sessions are included
@@ -106,5 +137,5 @@ export function useCalendarData(selectedDate: Date) {
         }
     }
 
-    return { espacios, sesiones, actividades, loading, error, refreshSessions }
+    return { espacios, sesiones, actividades, deportes, empleados, loading, error, refreshSessions }
 }

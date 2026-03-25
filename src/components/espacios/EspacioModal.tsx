@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Modal from '../ui/Modal'
 import { supabase } from '../../lib/supabase'
 import { useBranch } from '../../contexts/BranchContext'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Layers } from 'lucide-react'
 
 interface EspacioModalProps {
     isOpen: boolean
@@ -22,6 +22,7 @@ export default function EspacioModal({ isOpen, onClose, onSuccess, espacioToEdit
     const [capacidad, setCapacidad] = useState<number>(4)
     const [deporteId, setDeporteId] = useState<string>('')
     const [estado, setEstado] = useState('Activo')
+    const [esMultideporte, setEsMultideporte] = useState(false)
 
     // JSON fields
     const [caracProps, setCaracProps] = useState<Array<{ key: string, value: string }>>([])
@@ -34,6 +35,7 @@ export default function EspacioModal({ isOpen, onClose, onSuccess, espacioToEdit
             setCapacidad(espacioToEdit.capacidad || 4)
             setDeporteId(espacioToEdit.deporte_id || (deportes[0]?.id || ''))
             setEstado(espacioToEdit.estado || 'Activo')
+            setEsMultideporte(espacioToEdit.es_multideporte || false)
 
             const c = espacioToEdit.caracteristicas || {}
             setCaracProps(Object.keys(c).map(k => ({ key: k, value: String(c[k]) })))
@@ -42,6 +44,7 @@ export default function EspacioModal({ isOpen, onClose, onSuccess, espacioToEdit
             setCapacidad(4)
             setDeporteId(deportes[0]?.id || '')
             setEstado('Activo')
+            setEsMultideporte(false)
             setCaracProps([])
         }
         setError(null)
@@ -85,9 +88,10 @@ export default function EspacioModal({ isOpen, onClose, onSuccess, espacioToEdit
                 club_id: clubId,
                 nombre: nombre.trim(),
                 capacidad,
-                deporte_id: deporteId || null,
+                deporte_id: esMultideporte ? null : (deporteId || null),
                 estado,
-                caracteristicas: caracteristicasJson
+                caracteristicas: caracteristicasJson,
+                es_multideporte: esMultideporte
             }
 
             if (espacioToEdit) {
@@ -147,22 +151,55 @@ export default function EspacioModal({ isOpen, onClose, onSuccess, espacioToEdit
                     </div>
                 </div>
 
-                <div className="flex gap-4">
-                    <div className="flex-1 space-y-1">
-                        <label className="block text-sm font-medium text-textMain">Deporte <span className="text-red-500">*</span></label>
-                        <select
-                            required
-                            value={deporteId}
-                            onChange={(e) => setDeporteId(e.target.value)}
-                            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-textMain focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+                {/* Multideporte Toggle */}
+                <div className="border border-border rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${esMultideporte ? 'bg-primary/20 text-primary' : 'bg-surface text-textMuted border border-border'}`}>
+                                <Layers size={18} />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-textMain">Espacio Multideportes</p>
+                                <p className="text-xs text-textMuted">Habilita múltiples actividades en este espacio (ej. Yoga, Zumba, Funcional)</p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setEsMultideporte(!esMultideporte)}
+                            className={`relative w-11 h-6 rounded-full transition-colors ${esMultideporte ? 'bg-primary' : 'bg-border'}`}
                         >
-                            <option value="" disabled>Seleccionar deporte</option>
-                            {deportes.map(d => (
-                                <option key={d.id} value={d.id}>{d.nombre}</option>
-                            ))}
-                        </select>
+                            <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${esMultideporte ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </button>
                     </div>
-                    <div className="flex-1 space-y-1">
+
+                    {esMultideporte && (
+                        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                            <p className="text-xs text-primary leading-relaxed">
+                                <strong>Modo Multideportes activo:</strong> Al crear un turno en este espacio, se pedirá seleccionar la actividad/deporte correspondiente. No se asigna un deporte fijo al espacio.
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex gap-4">
+                    {/* Only show Deporte selector when NOT multideporte */}
+                    {!esMultideporte && (
+                        <div className="flex-1 space-y-1">
+                            <label className="block text-sm font-medium text-textMain">Deporte <span className="text-red-500">*</span></label>
+                            <select
+                                required={!esMultideporte}
+                                value={deporteId}
+                                onChange={(e) => setDeporteId(e.target.value)}
+                                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-textMain focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+                            >
+                                <option value="" disabled>Seleccionar deporte</option>
+                                {deportes.map(d => (
+                                    <option key={d.id} value={d.id}>{d.nombre}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                    <div className={esMultideporte ? "flex-1 space-y-1" : "flex-1 space-y-1"}>
                         <label className="block text-sm font-medium text-textMain">Estado <span className="text-red-500">*</span></label>
                         <select
                             required
