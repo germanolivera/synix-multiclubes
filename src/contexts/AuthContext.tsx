@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 
@@ -16,6 +16,7 @@ const AuthContext = createContext<AuthContextType>({
     signOut: async () => { },
 })
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -42,13 +43,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return () => subscription.unsubscribe()
     }, [])
 
-    const signOut = async () => {
+    const signOut = useCallback(async () => {
         if (user) {
             await supabase.from('user_sessions').delete().eq('user_id', user.id)
         }
         localStorage.removeItem('synix_session_token')
         await supabase.auth.signOut()
-    }
+    }, [user])
 
     useEffect(() => {
         if (!user) return
@@ -95,7 +96,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             window.removeEventListener('focus', onFocus)
             clearInterval(interval)
         }
-    }, [user])
+    }, [user, signOut])
 
     const value = {
         session,

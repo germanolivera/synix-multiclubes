@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Plus, Trash2, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
@@ -27,11 +27,9 @@ export default function Personal() {
     const [apellido, setApellido] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    useEffect(() => {
-        fetchEmpleados()
-    }, [session])
 
-    const fetchEmpleados = async () => {
+
+    const fetchEmpleados = useCallback(async () => {
         const orgId = session?.user?.app_metadata?.organizacion_id
         if (!orgId) {
             setLoading(false)
@@ -54,7 +52,11 @@ export default function Personal() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [session])
+
+    useEffect(() => {
+        fetchEmpleados()
+    }, [session, fetchEmpleados])
 
     const handleCreateEmpleado = async (e: React.FormEvent) => {
         e.preventDefault()

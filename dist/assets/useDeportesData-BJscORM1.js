@@ -1,6 +1,0 @@
-import{c as f,u as y,a as b,r as s,s as m}from"./index-DPEqodnp.js";/**
- * @license lucide-react v0.344.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */const M=f("Trophy",[["path",{d:"M6 9H4.5a2.5 2.5 0 0 1 0-5H6",key:"17hqa7"}],["path",{d:"M18 9h1.5a2.5 2.5 0 0 0 0-5H18",key:"lmptdp"}],["path",{d:"M4 22h16",key:"57wxv0"}],["path",{d:"M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22",key:"1nw9bq"}],["path",{d:"M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22",key:"1np0yb"}],["path",{d:"M18 2H6v7a6 6 0 0 0 12 0V2Z",key:"u46fv3"}]]);function g(){const{session:r}=y(),{activeClub:t,loadingBranch:o}=b(),[i,l]=s.useState([]),[d,a]=s.useState(!0),[h,n]=s.useState(null),c=async()=>{if(!(!r||!t))try{a(!0),n(null);const{data:e,error:u}=await m.from("club_deportes").select("*").eq("club_id",t.id).eq("activo",!0).order("nombre");if(u)throw u;l(e.map(p=>({...p,niveles_posibles:p.niveles_posibles||[]})))}catch(e){console.error("Error fetching deportes:",e),n(e.message||"Error cargando deportes")}finally{a(!1)}};return s.useEffect(()=>{let e=!0;return r&&t&&e?c():!o&&(!r||!t)&&e&&a(!1),()=>{e=!1}},[r,t,o]),{deportes:i,loading:d,error:h,refreshDeportes:c}}export{M as T,g as u};

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { Espacio } from '../types/database.types'
 import { useAuth } from '../contexts/AuthContext'
@@ -11,7 +11,7 @@ export function useEspaciosData() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    const fetchEspacios = async () => {
+    const fetchEspacios = useCallback(async () => {
         if (!session || !activeClub) return
 
         try {
@@ -36,7 +36,7 @@ export function useEspaciosData() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [session, activeClub])
 
     useEffect(() => {
         let isMounted = true
@@ -50,7 +50,7 @@ export function useEspaciosData() {
         return () => {
             isMounted = false
         }
-    }, [session, activeClub, loadingBranch])
+    }, [session, activeClub, loadingBranch, fetchEspacios])
 
     return { espacios, loading, error, refreshEspacios: fetchEspacios }
 }

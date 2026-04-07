@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { ClienteGlobal } from '../types/database.types'
 import { useAuth } from '../contexts/AuthContext'
@@ -11,7 +11,7 @@ export function usePlayersData() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    const fetchPlayers = async () => {
+    const fetchPlayers = useCallback(async () => {
         if (!session || !activeClub) return
 
         try {
@@ -35,7 +35,7 @@ export function usePlayersData() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [session, activeClub])
 
     useEffect(() => {
         let isMounted = true
@@ -49,7 +49,7 @@ export function usePlayersData() {
         return () => {
             isMounted = false
         }
-    }, [session, activeClub, loadingBranch])
+    }, [session, activeClub, loadingBranch, fetchPlayers])
 
     return { players, loading, error, refreshPlayers: fetchPlayers }
 }

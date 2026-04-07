@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MessageSquare, X, Send, Bot, User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -15,9 +15,9 @@ export default function CopilotChat() {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const scrollToBottom = () => {
+    const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+    }, []);
 
     useEffect(() => {
         if (isOpen && messages.length === 0) {
@@ -29,11 +29,11 @@ export default function CopilotChat() {
                 }
             ]);
         }
-    }, [isOpen]);
+    }, [isOpen, messages.length]);
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [messages, scrollToBottom]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

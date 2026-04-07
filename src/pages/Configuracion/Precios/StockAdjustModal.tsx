@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Plus, Minus, X, PackagePlus } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
-import { Articulo } from '../../../hooks/useArticulosData'
+import { Articulo } from '../../../types/database.types'
 
 interface StockAdjustModalProps {
     isOpen: boolean;

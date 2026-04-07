@@ -3,6 +3,7 @@ import { UploadCloud, X, CheckCircle2, AlertCircle, FileSpreadsheet } from 'luci
 import { supabase } from '../../../lib/supabase'
 import { useBranch } from '../../../contexts/BranchContext'
 import { useCategoriasData } from '../../../hooks/useCategoriasData'
+import { Articulo } from '../../../types/database.types'
 
 interface CSVImportModalProps {
     isOpen: boolean;
@@ -160,7 +161,7 @@ export default function CSVImportModal({ isOpen, onClose, onSuccess }: CSVImport
             }
 
             // 3. Prepare Articles (Insert vs Update)
-            const articulosToInsert: any[] = []
+            const articulosToInsert: Omit<Articulo, 'id' | 'created_at'>[] = []
             const articulosToUpdate: { id: string, precio: number, activo: boolean }[] = []
             let unchangedCount = 0
 
@@ -184,11 +185,11 @@ export default function CSVImportModal({ isOpen, onClose, onSuccess }: CSVImport
                     // New article
                     articulosToInsert.push({
                         club_id: activeClub.id,
-                        categoria_id: catId,
+                        categoria_id: catId!,
                         nombre: row.articulo,
                         precio: row.precio,
                         controla_stock: false,
-                        stock_actual: null,
+                        stock_actual: 0,
                         activo: row.activo
                     })
                 }

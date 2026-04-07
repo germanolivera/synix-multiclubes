@@ -3,14 +3,8 @@ import { supabase } from '../lib/supabase'
 import { useBranch } from '../contexts/BranchContext'
 import { useAuth } from '../contexts/AuthContext'
 
-export interface CategoriaArticulo {
-    id: string;
-    club_id: string;
-    nombre: string;
-    descripcion?: string | null;
-    estado: boolean;
-    created_at?: string;
-}
+import { CategoriaArticulo } from '../types/database.types'
+export type { CategoriaArticulo }
 
 export function useCategoriasData() {
     const { activeClub, loadingBranch } = useBranch()

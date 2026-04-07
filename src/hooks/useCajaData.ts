@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
-import { Sesion, SesionItem } from '../types/database.types'
+import { Sesion, SesionItem, PerfilEmpleado } from '../types/database.types'
 import { useAuth } from '../contexts/AuthContext'
 import { useBranch } from '../contexts/BranchContext'
 
@@ -34,7 +34,7 @@ export function useCajaData(startDate: Date, endDate: Date) {
         turnosPendientes: 0,
         turnosSenados: 0
     })
-    const [empleados, setEmpleados] = useState<any[]>([])
+    const [empleados, setEmpleados] = useState<PerfilEmpleado[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -94,7 +94,7 @@ export function useCajaData(startDate: Date, endDate: Date) {
                 let recTotal = 0
                 let recAlq = 0
                 let recKiosco = 0
-                let cantTurnos = typedSesiones.length
+                const cantTurnos = typedSesiones.length
                 let cPagados = 0
                 let cPendientes = 0
                 let cSenados = 0

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './AuthContext'
 
@@ -29,7 +29,12 @@ export function BranchProvider({ children }: { children: React.ReactNode }) {
     const [activeClub, setActiveClubState] = useState<Club | null>(null)
     const [loadingBranch, setLoadingBranch] = useState(true)
 
-    const refreshClubs = async () => {
+    const setActiveClub = useCallback((club: Club) => {
+        setActiveClubState(club)
+        localStorage.setItem('activeClubId', club.id)
+    }, [])
+
+    const refreshClubs = useCallback(async () => {
         if (!user || !session) {
             setClubs([])
             setActiveClubState(null)
@@ -73,16 +78,11 @@ export function BranchProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setLoadingBranch(false)
         }
-    }
+    }, [user, session, setActiveClub])
 
     useEffect(() => {
         refreshClubs()
-    }, [user, session])
-
-    const setActiveClub = (club: Club) => {
-        setActiveClubState(club)
-        localStorage.setItem('activeClubId', club.id)
-    }
+    }, [user, session, refreshClubs])
 
     return (
         <BranchContext.Provider value={{ clubs, activeClub, setActiveClub, loadingBranch, refreshClubs }}>
@@ -91,6 +91,7 @@ export function BranchProvider({ children }: { children: React.ReactNode }) {
     )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useBranch() {
     const context = useContext(BranchContext)
     if (context === undefined) {

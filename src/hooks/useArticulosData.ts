@@ -2,21 +2,8 @@ import { useState, useCallback, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useBranch } from '../contexts/BranchContext'
 import { useAuth } from '../contexts/AuthContext'
-import { CategoriaArticulo } from './useCategoriasData'
-
-export interface Articulo {
-    id: string;
-    club_id: string;
-    categoria_id: string;
-    nombre: string;
-    precio: number;
-    controla_stock: boolean;
-    stock_actual: number;
-    activo: boolean;
-    created_at?: string;
-    // Joined data
-    categoria?: CategoriaArticulo;
-}
+import { Articulo } from '../types/database.types'
+export type { Articulo }
 
 export function useArticulosData() {
     const { activeClub, loadingBranch } = useBranch()

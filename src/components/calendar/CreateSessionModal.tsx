@@ -135,7 +135,7 @@ export default function CreateSessionModal({
         }
 
         hasInitialized.current = true
-    }, [isOpen, timeString, actividades, editSession, players])
+    }, [isOpen, timeString, actividades, editSession, players, espacio?.es_multideporte])
 
     // Specific effect to hydrate the player in Edit Mode if players list loads late
     // Only runs once per modal open — does NOT re-hydrate after the user manually clears the player
@@ -153,7 +153,7 @@ export default function CreateSessionModal({
                 playerHydrated.current = true
             }
         }
-    }, [isOpen, editSession, players])
+    }, [isOpen, editSession, players, selectedPlayer])
 
     if (!espacio) return null
 
@@ -227,7 +227,7 @@ export default function CreateSessionModal({
 
             let sesionId: string
 
-            let oldItemsMap = new Map<string, number>()
+            const oldItemsMap = new Map<string, number>()
 
             if (editSession) {
                 // Fetch old items to calculate stock difference later
@@ -261,7 +261,7 @@ export default function CreateSessionModal({
             }
 
             // Save all items
-            let newItemsMap = new Map<string, number>()
+            const newItemsMap = new Map<string, number>()
             if (sesionItems.length > 0) {
                 const itemsPayload = sesionItems.map(item => {
                     if (item.articulo_id) {

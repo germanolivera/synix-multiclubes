@@ -298,6 +298,15 @@ export function CajaDashboard() {
         return matchesSearch && matchesStatus
     })
 
+    const csvEscape = (str: string | number | null | undefined) => {
+        if (str === null || str === undefined) return '""';
+        const s = String(str);
+        if (s.includes('"') || s.includes(',') || s.includes('\n') || s.includes('\r')) {
+            return `"${s.replace(/"/g, '""')}"`;
+        }
+        return `"${s}"`;
+    };
+
     const handleExportCSV = () => {
         const headers = ['Fecha', 'Horario', 'Cliente', 'Cancha / Espacio', 'Actividad', 'Items', 'Total', 'Estado']
         const rows = filteredSesiones.map(s => {
@@ -311,7 +320,16 @@ export function CajaDashboard() {
             const status = s.estado_pago || 'pendiente'
             const items = s.items?.map(i => `${i.cantidad}x ${i.nombre}`).join('; ') || ''
 
-            return `"${dateText}","${startText}","${clientName}","${spaceName}","${actName}","${items}","${total}","${status.toUpperCase()}"`
+            return [
+                csvEscape(dateText),
+                csvEscape(startText),
+                csvEscape(clientName),
+                csvEscape(spaceName),
+                csvEscape(actName),
+                csvEscape(items),
+                csvEscape(total),
+                csvEscape(status.toUpperCase())
+            ].join(',')
         })
 
         const csvString = '\uFEFF' + [headers.join(','), ...rows].join('\n')
@@ -501,9 +519,12 @@ export function CajaDashboard() {
                                                         <td className="px-6 py-4 text-textMuted">{s.actividad?.nombre || '-'}</td>
                                                         <td className="px-6 py-4 text-[11px] font-medium">
                                                             {s.created_by ? (
-                                                                empleados.find(e => e.user_id === s.created_by) 
-                                                                    ? <span className="text-textMuted border border-border px-2 py-1 rounded bg-surface shadow-sm">{`${empleados.find(e => e.user_id === s.created_by).nombre} ${empleados.find(e => e.user_id === s.created_by).apellido || ''}`.trim()}</span>
-                                                                    : <span className="text-primary border border-primary/20 px-2 py-1 rounded bg-primary/10 shadow-sm">Titular</span>
+                                                                (() => {
+                                                                    const emp = empleados.find(e => e.user_id === s.created_by);
+                                                                    return emp 
+                                                                        ? <span className="text-textMuted border border-border px-2 py-1 rounded bg-surface shadow-sm">{`${emp.nombre} ${emp.apellido || ''}`.trim()}</span>
+                                                                        : <span className="text-primary border border-primary/20 px-2 py-1 rounded bg-primary/10 shadow-sm">Titular</span>
+                                                                })()
                                                             ) : (
                                                                 <span className="text-textMuted/50 italic">-</span>
                                                             )}

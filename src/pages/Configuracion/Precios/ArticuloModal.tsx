@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react'
 import Modal from '../../../components/ui/Modal'
 import { supabase } from '../../../lib/supabase'
 import { useBranch } from '../../../contexts/BranchContext'
-import { Articulo } from '../../../hooks/useArticulosData'
+import { Articulo } from '../../../types/database.types'
 import { useCategoriasData } from '../../../hooks/useCategoriasData'
 
 interface ArticuloModalProps {

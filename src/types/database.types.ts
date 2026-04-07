@@ -68,3 +68,34 @@ export interface ClienteGlobal {
     activo: boolean;
     created_at?: string;
 }
+export interface Articulo {
+    id: string;
+    club_id: string;
+    categoria_id: string;
+    nombre: string;
+    precio: number;
+    controla_stock: boolean;
+    stock_actual: number;
+    activo: boolean;
+    created_at?: string;
+    categoria?: CategoriaArticulo;
+}
+
+export interface CategoriaArticulo {
+    id: string;
+    club_id: string;
+    nombre: string;
+    descripcion: string | null;
+    estado: boolean;
+}
+
+export interface PerfilEmpleado {
+    id?: string;
+    user_id: string;
+    organizacion_id?: string;
+    nombre: string;
+    apellido?: string;
+    email?: string;
+    rol?: string;
+    activo?: boolean;
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, Tags, Check, X, DownloadCloud, UploadCloud, Search, PackagePlus } from 'lucide-react'
-import { useArticulosData, Articulo } from '../../../hooks/useArticulosData'
+import { Articulo } from '../../../types/database.types'
+import { useArticulosData } from '../../../hooks/useArticulosData'
 import ArticuloModal from './ArticuloModal'
 import CSVImportModal from './CSVImportModal'
 import StockAdjustModal from './StockAdjustModal'
@@ -33,6 +34,15 @@ export default function ArticulosTab() {
         setIsAdjustModalOpen(true)
     }
 
+    const csvEscape = (str: string | number | null | undefined) => {
+        if (str === null || str === undefined) return '""';
+        const s = String(str);
+        if (s.includes('"') || s.includes(',') || s.includes('\n') || s.includes('\r')) {
+            return `"${s.replace(/"/g, '""')}"`;
+        }
+        return `"${s}"`;
+    };
+
     const handleExportCSV = () => {
         const headers = ['Categoría', 'Artículo', 'Precio', 'Estado']
         const rows = filteredArticulos.map(art => {
@@ -41,8 +51,12 @@ export default function ArticulosTab() {
             const precio = art.precio
             const estado = art.activo ? 'Activo' : 'Inactivo'
 
-            // Usamos comillas dobles por si los nombres contienen comas
-            return `"${cat}","${nombre}","${precio}","${estado}"`
+            return [
+                csvEscape(cat),
+                csvEscape(nombre),
+                csvEscape(precio),
+                csvEscape(estado)
+            ].join(',')
         })
 
         const csvString = '\uFEFF' + [headers.join(','), ...rows].join('\n')

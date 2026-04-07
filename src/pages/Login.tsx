@@ -104,6 +104,16 @@ export default function Login() {
                             </button>
                         </div>
                     </form>
+
+                    <div className="mt-8 border-t border-border pt-6 text-center">
+                        <p className="text-sm text-textMuted">
+                            ¿Necesitas generar un usuario nuevo?<br />
+                            Envía un correo a{' '}
+                            <a href="mailto:activaciones@synix.ar" className="font-medium text-primary hover:text-primaryHover transition-colors">
+                                activaciones@synix.ar
+                            </a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
