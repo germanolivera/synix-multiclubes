@@ -3,6 +3,7 @@ import { usePlayersData } from '../../hooks/usePlayersData'
 import { useDeportesData } from '../../hooks/useDeportesData'
 import { useState } from 'react'
 import PlayerModal from '../../components/jugadores/PlayerModal'
+import { ClienteGlobal } from '../../types/database.types'
 
 export default function Jugadores() {
     const { players, loading, error, refreshPlayers } = usePlayersData()
@@ -12,14 +13,14 @@ export default function Jugadores() {
     const [selectedNivel, setSelectedNivel] = useState('')
     const [selectedTipo, setSelectedTipo] = useState<'' | 'jugador' | 'profesor'>('')
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [selectedPlayer, setSelectedPlayer] = useState<any>(null)
+    const [selectedPlayer, setSelectedPlayer] = useState<ClienteGlobal | null>(null)
 
     const handleOpenNew = () => {
         setSelectedPlayer(null)
         setIsModalOpen(true)
     }
 
-    const handleOpenEdit = (player: any) => {
+    const handleOpenEdit = (player: ClienteGlobal) => {
         setSelectedPlayer(player)
         setIsModalOpen(true)
     }

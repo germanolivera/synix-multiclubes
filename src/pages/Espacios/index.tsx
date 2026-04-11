@@ -5,6 +5,7 @@ import { useState } from 'react'
 import EspacioModal from '../../components/espacios/EspacioModal'
 import DeporteModal from '../../components/espacios/DeporteModal'
 import { Link } from 'react-router-dom'
+import { Espacio, Deporte } from '../../types/database.types'
 
 export default function Espacios() {
     const { espacios, loading: loadingE, error: errorE, refreshEspacios } = useEspaciosData()
@@ -13,10 +14,10 @@ export default function Espacios() {
     const [activeTab, setActiveTab] = useState<'espacios' | 'deportes'>('espacios')
 
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [selectedEspacio, setSelectedEspacio] = useState<any>(null) // the one to edit (null = new)
+    const [selectedEspacio, setSelectedEspacio] = useState<Espacio | null>(null) // the one to edit (null = new)
 
     const [isDeporteModalOpen, setIsDeporteModalOpen] = useState(false)
-    const [selectedDeporte, setSelectedDeporte] = useState<any>(null)
+    const [selectedDeporte, setSelectedDeporte] = useState<Deporte | null>(null)
 
     const handleOpenNew = () => {
         if (activeTab === 'espacios') {
@@ -28,12 +29,12 @@ export default function Espacios() {
         }
     }
 
-    const handleOpenEditEspacio = (espacio: any) => {
+    const handleOpenEditEspacio = (espacio: Espacio) => {
         setSelectedEspacio(espacio)
         setIsModalOpen(true)
     }
 
-    const handleOpenEditDeporte = (deporte: any) => {
+    const handleOpenEditDeporte = (deporte: Deporte) => {
         setSelectedDeporte(deporte)
         setIsDeporteModalOpen(true)
     }

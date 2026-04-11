@@ -4,12 +4,13 @@ import { supabase } from '../../lib/supabase'
 import { useBranch } from '../../contexts/BranchContext'
 import { useDeportesData } from '../../hooks/useDeportesData'
 import { Plus, X, Trophy } from 'lucide-react'
+import { ClienteGlobal } from '../../types/database.types'
 
 interface PlayerModalProps {
     isOpen: boolean
     onClose: () => void
-    onSuccess: (player?: any) => void
-    playerToEdit?: any | null
+    onSuccess: (player?: ClienteGlobal) => void
+    playerToEdit?: ClienteGlobal | null
 }
 
 export default function PlayerModal({ isOpen, onClose, onSuccess, playerToEdit }: PlayerModalProps) {

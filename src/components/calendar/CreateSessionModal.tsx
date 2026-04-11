@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import Modal from '../ui/Modal'
-import { Espacio, Actividad, Deporte, SesionItem } from '../../types/database.types'
+import { Espacio, Actividad, Deporte, SesionItem, PerfilEmpleado, Sesion } from '../../types/database.types'
 import { supabase } from '../../lib/supabase'
 import { useBranch } from '../../contexts/BranchContext'
 import { useAuth } from '../../contexts/AuthContext'
@@ -18,8 +18,8 @@ interface CreateSessionModalProps {
     espacio: Espacio | null
     actividades: Actividad[]
     deportes: Deporte[]
-    empleados: any[]
-    editSession?: any | null
+    empleados: PerfilEmpleado[]
+    editSession?: Sesion | null
 }
 
 const DURATION_OPTIONS = [15, 30, 60, 90, 120, 240]
@@ -369,8 +369,8 @@ export default function CreateSessionModal({
                                 <span className="text-[11px] text-textMuted bg-surface px-2 py-1 rounded-md border border-border">
                                     Creado por: <span className="font-medium text-textMain">
                                         {empleados.find(e => e.user_id === editSession.created_by) 
-                                            ? `${empleados.find(e => e.user_id === editSession.created_by).nombre} ${empleados.find(e => e.user_id === editSession.created_by).apellido || ''}`.trim()
-                                            : (session?.user?.id === editSession.created_by ? 'Vos (Titular)' : 'Titular')
+                                        ? `${empleados.find(e => e.user_id === editSession.created_by)?.nombre} ${empleados.find(e => e.user_id === editSession.created_by)?.apellido || ''}`.trim()
+                                        : (session?.user?.id === editSession.created_by ? 'Vos (Titular)' : 'Titular')
                                         }
                                     </span>
                                 </span>
